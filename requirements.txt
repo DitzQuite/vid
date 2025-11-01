@@ -9,3 +9,4 @@ pymysql
 sqlalchemy
 python-jose[cryptography]
 pydantic
+opencv-python

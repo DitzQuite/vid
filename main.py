@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Iterator
 import json
 import uvicorn
+import cv2
 
 # FIX: Import Cookie
 from fastapi import FastAPI, Request, Form, Depends, UploadFile, File, BackgroundTasks, HTTPException, status, Cookie
@@ -339,23 +340,29 @@ async def get_optional_current_user(
 
 # ----- Video background processing (FFmpeg) -----
 def generate_thumbnail(video_path: Path, thumb_path: Path):
-    """Generates a thumbnail from a local video file at 1 second mark."""
+    """Generates a thumbnail from a local video file at 1 second mark using OpenCV."""
     try:
-        if ffmpeg:
-            (
-                ffmpeg
-                .input(str(video_path), ss=1)  # Use ss=1 (1 second mark) for a non-random frame
-                .filter('scale', 320, -1)
-                .output(str(thumb_path), vframes=1)
-                .overwrite_output()
-                .run(capture_stdout=True, capture_stderr=True)
-            )
-        else:
-            # no ffmpeg-python installed; skip
-            pass
+        cap = cv2.VideoCapture(str(video_path))
+        if not cap.isOpened():
+            raise RuntimeError("Cannot open video file")
+
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_number = int(fps)  # 1 second mark
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+
+        success, frame = cap.read()
+        if not success:
+            raise RuntimeError("Cannot read frame")
+
+        height, width = frame.shape[:2]
+        new_width = 320
+        new_height = int(height * (320 / width))
+        frame_resized = cv2.resize(frame, (new_width, new_height))
+
+        cv2.imwrite(str(thumb_path), frame_resized)
+        cap.release()
     except Exception as e:
         print(f"Thumbnail generation failed: {e}")
-        pass
 
 
 def compress_and_clean(original_gcs_path: str, video_id: str, original_ext: str, db_session):
