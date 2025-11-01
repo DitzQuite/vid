@@ -951,4 +951,4 @@ def api_admin_review(video_id: str, action: str = Form(...), admin: User = Depen
         return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
     raise HTTPException(status_code=400, detail="invalid action")
 
-uvicorn.run(app,host=0.0.0.0,port=8080)
+uvicorn.run(app,host="0.0.0.0",port=8080)
