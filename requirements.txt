@@ -5,6 +5,7 @@ python-multipart
 passlib[bcrypt]
 bcrypt==4.0.1
 google-cloud-storage
+pymysql
 sqlalchemy
 python-jose[cryptography]
 pydantic
