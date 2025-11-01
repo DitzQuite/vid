@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{ title | default('VoidsDataStore') }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/script.js"></script>
+</head>
+<body class="page">
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">Videos.VoidsDataStore.Net</a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        {% if request.cookies.get('access_token') %}
+          <a href="/upload">Upload</a>
+          <a href="/profile/{{ request.cookies.get('user_id') }}">Profile</a>
+          {% if request.cookies.get('user_role') == 'Administrator' %}
+            <a href="/admin">Staff Review</a>
+          {% endif %}
+          <button id="logoutBtn" class="btn small">Logout</button>
+        {% else %}
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">VoidsDataStore</div>
+  </footer>
+  <div id="message" class="message"></div>
+</body>
+</html>

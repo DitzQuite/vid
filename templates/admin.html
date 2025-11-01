@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Staff Review</h2>
+<div class="card">
+  {% if pending %}
+    <ul class="pending-list">
+      {% for v in pending %}
+        <li>
+          <strong>{{ v.title }}</strong> by {{ v.owner_username }} · Uploaded {{ v.upload_date }}
+          <div>
+            <form style="display:inline" method="post" action="/api/admin/review/{{ v.id }}">
+              <input type="hidden" name="action" value="approve">
+              <button class="btn" type="submit">Approve</button>
+            </form>
+            <form style="display:inline" method="post" action="/api/admin/review/{{ v.id }}">
+              <input type="hidden" name="action" value="reject">
+              <button class="btn danger" type="submit">Reject</button>
+            </form>
+            <a class="btn" href="/watch/{{ v.id }}">Preview</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No pending videos.</p>
+  {% endif %}
+</div>
+{% endblock %}

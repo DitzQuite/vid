@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Home</h1>
+
+<div class="columns">
+  <section class="col">
+    <h2>Recently Uploaded</h2>
+    <div class="grid">
+      {% for v in recent %}
+        <article class="card video-card">
+          <a class="nos" href="/watch/{{ v.id }}">
+            <img src="{{ v.thumbnail or '/static/video-placeholder.png' }}" alt="thumb" class="thumb">
+            <h3>{{ v.title }}</h3>
+          </a>
+          <a href="/profile/{{v.owner.id}}" class="nos_meta">{{ v.owner_username }} · {{ v.likes_count }} likes</a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="col">
+    <h2>Watching</h2>
+    <div class="grid">
+      {% if watching %}
+        {% for v in watching %}
+          <article class="card video-card">
+            <a href="/watch/{{ v.id }}">
+              <img src="{{ v.thumbnail or '/static/video-placeholder.png' }}" alt="thumb" class="thumb">
+              <h3>{{ v.title }}</h3>
+              <p class="meta">{{ v.owner_username }} · {{ v.likes_count }} likes</p>
+            </a>
+          </article>
+        {% endfor %}
+      {% else %}
+        <p>Not watching anyone or no recent videos. Log in and watch creators.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

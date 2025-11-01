@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="player card">
+  <h2>{{ video.title }}</h2>
+  <video controls preload="metadata" class="video-el">
+    <source src="/api/videos/{{ video.id }}/stream" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  {% if not ispublic %}<span class="badge">UNDER REVIEW</span><br>{% endif %}
+  <span class="creator">
+    <img src="{{owner.avatar_path}}" class="avatar">
+    <a class="nos" href="/profile/{{owner.id}}">{{ owner.username }}</a> {% if owner.role == 'Administrator' %}<span class="badge">STAFF</span>{% endif %}
+    <div class="actions">
+    <button id="likeBtn" class="btn">Like ({{ video.likes_count }})</button>
+    {% if user and user.id != video.owner_id %}
+      <button id="watchBtn" class="btn">Watch</button>
+    {% endif %}
+  </div>
+  </span>
+  <p>{{ video.description }}</p>
+</div>
+
+<section class="card comments">
+  <h3>Comments</h3>
+  {% if user %}
+    <form id="commentForm" class="comment-form">
+      <textarea name="text" required></textarea>
+      <button class="btn" type="submit">Post</button>
+    </form>
+  {% else %}
+    <p><a href="/login">Login</a> to comment.</p>
+  {% endif %}
+
+  <div id="commentList">
+    {% for c in comments %}
+      <div class="comment">
+        <strong>{{ c.username }}</strong> <span class="muted">{{ c.timestamp }}</span>
+        <p>{{ c.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const videoId = "{{ video.id }}";
+    const likeBtn = document.getElementById('likeBtn');
+
+    likeBtn?.addEventListener('click', async () => {
+      const token = getCookie('access_token');
+      if (!token) return;
+
+      likeBtn.textContent = `Processing`;
+
+      // Send like request
+      const res = await fetch(`/api/videos/${videoId}/like`, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+
+      if (res.ok) {
+        // Fetch updated like count
+        const likeRes = await fetch(`/api/videos/${videoId}/likes`);
+        if (likeRes.ok) {
+          const data = await likeRes.json();
+          likeBtn.textContent = `Like (${data.likes})`;
+        }
+      } else {
+        console.error('Failed to like video');
+      }
+    });
+
+    document.getElementById('commentForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = e.target.elements['text'].value;
+      const fd = new FormData();
+      fd.append('text', text);
+      await fetch('/api/videos/' + videoId + '/comment', { method: 'POST', headers: { Authorization: 'Bearer ' + getCookie('access_token') }, body: fd });
+      location.reload();
+    });
+
+    const watchBtn = document.getElementById('watchBtn');
+    watchBtn?.addEventListener('click', async () => {
+      await fetch('/api/users/{{ video.owner_id }}/watch', { method: 'POST', headers: { Authorization: 'Bearer ' + getCookie('access_token') }});
+      location.reload();
+    });
+  });
+</script>
+{% endblock %}

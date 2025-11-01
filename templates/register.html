@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card auth">
+  <h2>Register</h2>
+  <form id="registerForm" method="post" action="/api/register">
+    <label>Username<input name="username" required></label>
+    <label>Email<input name="email" type="email" required></label>
+    <label>Password<input name="password" type="password" required></label>
+    <button class="btn primary" type="submit">Register</button>
+  </form>
+</div>
+{% endblock %}

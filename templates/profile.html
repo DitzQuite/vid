@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile">
+  <div class="card">
+    <div class="profile-head">
+      <img src="{{ profile.avatar_path or '/static/avatar-placeholder.png' }}" class="avatar">
+      <h2>{{ profile.username }} {% if profile.role == 'Administrator' %}<span class="badge">STAFF</span>{% endif %}</h2>
+      <p class="muted">{{ profile.email }}</p>
+      <p>{{ profile.bio }}</p>
+    </div>
+
+    {% if request.cookies.get('user_id') == profile.id %}
+      <form action="/api/profile/edit" method="post" enctype="multipart/form-data">
+        <label>Bio<textarea name="bio">{{ profile.bio }}</textarea></label>
+        <label>Avatar<input type="file" name="avatar" accept="image/*"></label>
+        <button class="btn" type="submit">Save profile</button>
+      </form>
+      <form action="/api/profile/delete" method="post" onsubmit="return confirm('Delete account?');">
+        <button class="btn danger" type="submit">Delete account</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <h3>Videos</h3>
+  <div class="grid">
+    {% for v in videos %}
+      <article class="card video-card">
+        <a href="/watch/{{ v.id }}">
+          <img src="{{ v.thumbnail or '/static/video-placeholder.png' }}" class="thumb">
+          <h4>{{ v.title }}</h4>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

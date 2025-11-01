@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card auth">
+  <h2>Login</h2>
+  <form id="loginForm" method="post" action="/token">
+    <label>Username<input name="username" required></label>
+    <label>Password<input name="password" type="password" required></label>
+    <button class="btn primary" type="submit">Login</button>
+  </form>
+</div>
+{% endblock %}
