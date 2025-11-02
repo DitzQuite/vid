@@ -2,12 +2,63 @@
 {% block content %}
 <h2>Upload Video</h2>
 <div class="card">
-  <form id="uploadForm" action="/api/videos/upload" method="post" enctype="multipart/form-data">
+  <form id="uploadForm" enctype="multipart/form-data">
     <label>Title<input name="title" required></label>
     <label>Description<textarea name="description"></textarea></label>
     <label>File<input type="file" name="file" accept="video/*" required></label>
     <button class="btn primary" type="submit">Upload (will await staff review)</button>
   </form>
+
+  <div id="progressContainer" style="display:none; margin-top:10px;">
+    <div id="progressBar" style="height:8px; width:0%; background:#4caf50; transition:width 0.2s;"></div>
+    <p id="progressText" class="muted" style="margin-top:6px;">0%</p>
+  </div>
+
   <p class="muted">Uploads are compressed and sent to staff review. Admins must approve before public.</p>
 </div>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const fileInput = form.querySelector('input[name="file"]');
+  const title = form.querySelector('input[name="title"]').value;
+  const description = form.querySelector('textarea[name="description"]').value;
+  const file = fileInput.files[0];
+  if (!file) return alert("Select a file first");
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("title", title);
+  formData.append("description", description);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/videos/upload", true);
+
+  const progressContainer = document.getElementById("progressContainer");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+  progressContainer.style.display = "block";
+
+  xhr.upload.onprogress = (event) => {
+    if (event.lengthComputable) {
+      const percent = Math.round((event.loaded / event.total) * 100);
+      progressBar.style.width = percent + "%";
+      progressText.textContent = percent + "%";
+    }
+  };
+
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      window.location.href = xhr.responseURL || "/videos";
+    } else {
+      alert("Upload failed: " + xhr.statusText);
+    }
+  };
+
+  xhr.onerror = () => alert("Upload error occurred.");
+  xhr.send(formData);
+});
+</script>
 {% endblock %}
