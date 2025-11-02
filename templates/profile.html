@@ -12,9 +12,15 @@
     {% if request.cookies.get('user_id') == profile.id %}
       <form action="/api/profile/edit" method="post" enctype="multipart/form-data">
         <label>Bio<textarea name="bio">{{ profile.bio }}</textarea></label>
-        <label>Avatar<input type="file" name="avatar" accept="image/*"></label>
+
+        <label class="file-btn">
+          Select Avatar
+          <input type="file" name="avatar" accept="image/*" hidden>
+        </label>
+
         <button class="btn" type="submit">Save profile</button>
       </form>
+
       <form action="/api/profile/delete" method="post" onsubmit="return confirm('Delete account?');">
         <button class="btn danger" type="submit">Delete account</button>
       </form>
@@ -33,4 +39,21 @@
     {% endfor %}
   </div>
 </div>
+
+<style>
+.file-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  background: #007bff;
+  color: #fff;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.file-btn:active {
+  background: #0056b3;
+}
+</style>
 {% endblock %}
